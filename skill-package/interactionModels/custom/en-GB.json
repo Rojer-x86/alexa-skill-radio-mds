@@ -1,7 +1,7 @@
 {
   "interactionModel": {
     "languageModel": {
-      "invocationName": "radio m. d. s.",
+      "invocationName": "m. d. s. player",
       "intents": [
         {
           "name": "PlayRadioIntent",

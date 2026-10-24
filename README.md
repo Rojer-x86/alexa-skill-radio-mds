@@ -16,8 +16,8 @@
 
 ## Как запускать
 
-- "Alexa, open radio M D S"
-- "Alexa, ask radio M D S to play"
+- "Alexa, open M D S player"
+- "Alexa, ask M D S player to play"
 - "Alexa, stop" / "Alexa, resume"
 
 Короткую фразу можно сделать через Routine в приложении Alexa:
