@@ -1,0 +1,105 @@
+{
+  "manifest": {
+    "publishingInformation": {
+      "locales": {
+        "en-US": {
+          "name": "Radio MDS",
+          "summary": "Plays MDS Station internet radio",
+          "description": "Plays the MDS Station (Model dlya sborki) internet radio stream.",
+          "examplePhrases": [
+            "Alexa, open radio m. d. s.",
+            "Alexa, ask radio m. d. s. to play"
+          ],
+          "keywords": [
+            "radio",
+            "mds",
+            "audiobooks"
+          ]
+        },
+        "en-GB": {
+          "name": "Radio MDS",
+          "summary": "Plays MDS Station internet radio",
+          "description": "Plays the MDS Station (Model dlya sborki) internet radio stream.",
+          "examplePhrases": [
+            "Alexa, open radio m. d. s.",
+            "Alexa, ask radio m. d. s. to play"
+          ],
+          "keywords": [
+            "radio",
+            "mds",
+            "audiobooks"
+          ]
+        },
+        "en-CA": {
+          "name": "Radio MDS",
+          "summary": "Plays MDS Station internet radio",
+          "description": "Plays the MDS Station (Model dlya sborki) internet radio stream.",
+          "examplePhrases": [
+            "Alexa, open radio m. d. s.",
+            "Alexa, ask radio m. d. s. to play"
+          ],
+          "keywords": [
+            "radio",
+            "mds",
+            "audiobooks"
+          ]
+        },
+        "en-AU": {
+          "name": "Radio MDS",
+          "summary": "Plays MDS Station internet radio",
+          "description": "Plays the MDS Station (Model dlya sborki) internet radio stream.",
+          "examplePhrases": [
+            "Alexa, open radio m. d. s.",
+            "Alexa, ask radio m. d. s. to play"
+          ],
+          "keywords": [
+            "radio",
+            "mds",
+            "audiobooks"
+          ]
+        },
+        "en-IN": {
+          "name": "Radio MDS",
+          "summary": "Plays MDS Station internet radio",
+          "description": "Plays the MDS Station (Model dlya sborki) internet radio stream.",
+          "examplePhrases": [
+            "Alexa, open radio m. d. s.",
+            "Alexa, ask radio m. d. s. to play"
+          ],
+          "keywords": [
+            "radio",
+            "mds",
+            "audiobooks"
+          ]
+        }
+      },
+      "isAvailableWorldwide": true,
+      "category": "STREAMING_SERVICE",
+      "distributionCountries": []
+    },
+    "apis": {
+      "custom": {
+        "interfaces": [
+          {
+            "type": "AUDIO_PLAYER"
+          }
+        ]
+      }
+    },
+    "manifestVersion": "1.0",
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "usesPersonalInfo": false,
+      "isChildDirected": false,
+      "isExportCompliant": true,
+      "containsAds": false,
+      "locales": {
+        "en-US": {},
+        "en-GB": {},
+        "en-CA": {},
+        "en-AU": {},
+        "en-IN": {}
+      }
+    }
+  }
+}
