@@ -1,7 +1,8 @@
 const Alexa = require('ask-sdk-core');
 
+const MAX_RETRIES = 5;
+
 const STREAM = {
-  token: 'mds-station-stream',
   // Alexa plays only HTTPS streams with a trusted certificate,
   // so we use the TLS port 8443 instead of http://mds-station.com:8000/mds
   url: 'https://mds-station.com:8443/mds',
@@ -11,11 +12,16 @@ const STREAM = {
   },
 };
 
-function play(handlerInput, speech) {
+// Every play needs a unique token: Alexa ignores an ENQUEUE that repeats
+// the current token. The retry counter travels inside the token.
+const makeToken = (retry = 0) => `mds-${Date.now()}-r${retry}`;
+const retryOf = (token) => Number((/-r(\d+)$/.exec(token || '') || [])[1] || 0);
+
+function play(handlerInput, speech, token = makeToken()) {
   const builder = handlerInput.responseBuilder;
   if (speech) builder.speak(speech);
   return builder
-    .addAudioPlayerPlayDirective('REPLACE_ALL', STREAM.url, STREAM.token, 0, null, STREAM.metadata)
+    .addAudioPlayerPlayDirective('REPLACE_ALL', STREAM.url, token, 0, null, STREAM.metadata)
     .withShouldEndSession(true)
     .getResponse();
 }
@@ -91,17 +97,54 @@ const UnsupportedAudioHandler = {
   },
 };
 
-// AudioPlayer events only need an empty response
+// A live stream has no length, so Alexa may decide it is about to end.
+// Queue the same stream again so playback continues without a gap.
+const PlaybackNearlyFinishedHandler = {
+  canHandle(input) {
+    return Alexa.getRequestType(input.requestEnvelope) === 'AudioPlayer.PlaybackNearlyFinished';
+  },
+  handle(input) {
+    const currentToken = input.requestEnvelope.request.token;
+    return input.responseBuilder
+      .addAudioPlayerPlayDirective('ENQUEUE', STREAM.url, makeToken(), 0, currentToken, STREAM.metadata)
+      .getResponse();
+  },
+};
+
+// Network hiccup: restart the stream a few times before giving up
+const PlaybackFailedHandler = {
+  canHandle(input) {
+    return Alexa.getRequestType(input.requestEnvelope) === 'AudioPlayer.PlaybackFailed';
+  },
+  handle(input) {
+    const request = input.requestEnvelope.request;
+    console.log('Playback failed:', JSON.stringify(request.error));
+    const retry = retryOf(request.token) + 1;
+    if (retry > MAX_RETRIES) {
+      console.log('Giving up after', MAX_RETRIES, 'retries');
+      return input.responseBuilder.getResponse();
+    }
+    return input.responseBuilder
+      .addAudioPlayerPlayDirective('REPLACE_ALL', STREAM.url, makeToken(retry), 0, null, STREAM.metadata)
+      .getResponse();
+  },
+};
+
+// Other AudioPlayer events only need an empty response
 const AudioPlayerEventHandler = {
   canHandle(input) {
     return Alexa.getRequestType(input.requestEnvelope).startsWith('AudioPlayer.');
   },
   handle(input) {
-    const type = Alexa.getRequestType(input.requestEnvelope);
-    if (type === 'AudioPlayer.PlaybackFailed') {
-      console.log('Playback failed:', JSON.stringify(input.requestEnvelope.request.error));
-    }
     return input.responseBuilder.getResponse();
+  },
+};
+
+// Log every incoming request so CloudWatch shows why playback stopped
+const LogRequestInterceptor = {
+  process(input) {
+    const request = input.requestEnvelope.request;
+    console.log('Request:', request.type, request.token || '', request.error ? JSON.stringify(request.error) : '');
   },
 };
 
@@ -143,9 +186,12 @@ exports.handler = Alexa.SkillBuilders.custom()
     PauseStopHandler,
     HelpHandler,
     UnsupportedAudioHandler,
+    PlaybackNearlyFinishedHandler,
+    PlaybackFailedHandler,
     AudioPlayerEventHandler,
     SessionEndedHandler,
     ExceptionEncounteredHandler,
   )
+  .addRequestInterceptors(LogRequestInterceptor)
   .addErrorHandlers(ErrorHandler)
   .lambda();
